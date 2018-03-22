@@ -2,7 +2,7 @@
 
  BuilderScenario - гибкий и легко расширяемый инструмент для создания и выполнения сценариев сборки проектов Unity3D.
 
- ![Окно редактора конфигурации](https://raw.githubusercontent.com/CTAPbIuKODEP/BuilderScenario/master/docs/exampleview.png)
+ ![Окно редактора конфигурации](https://raw.githubusercontent.com/CTAPbIuKODEP/BuilderScenario/master/docs/main_window.png)
 
 ## Ключевые особенности:
 
