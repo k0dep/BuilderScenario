@@ -27,7 +27,7 @@ namespace BuilderScenario
         void DrawHeader(BuildScenario conf);
     }
 
-    public interface IBuildListJob
+    public interface IBuildListJob : IBuildJob
     {
         IBuildJob[] ChildJobs { get; }
     }
@@ -38,5 +38,25 @@ namespace BuilderScenario
         IDictionary ConfigStore { get; }
         T GetService<T>();
         BuildScenario Scenario { get; }
+    }
+
+    public class DummyJob : IBuildJob
+    {
+        public bool Enabled { get; set; }
+        public bool Run(IBuildContext context)
+        {
+            return Enabled;
+        }
+    }
+    
+    public class DummyListJob : IBuildListJob
+    {
+        public bool Enabled { get; set; }
+        public bool Run(IBuildContext context)
+        {
+            return Enabled;
+        }
+
+        public IBuildJob[] ChildJobs { get; set; }
     }
 }

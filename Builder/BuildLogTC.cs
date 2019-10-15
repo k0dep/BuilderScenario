@@ -10,4 +10,20 @@ namespace BuilderScenario
       Debug.Log((object) ("##teamcity[progressMessage '" + line + "']"));
     }
   }
+  
+  public class BuildLog
+  {
+    public virtual void Line(string line, string who = null, string level = null)
+    {
+      Debug.Log((object) ("##teamcity[progressMessage '" + line + "']"));
+    }
+
+    public void Start()
+    {
+    }
+    
+    public void End()
+    {
+    }
+  }
 }
