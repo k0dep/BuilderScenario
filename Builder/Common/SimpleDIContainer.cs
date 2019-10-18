@@ -8,7 +8,7 @@ namespace BuilderScenario
     /// <summary>
     /// Simple IoC Container based on constructor injection.
     /// </summary>
-    public class SimpleIoC 
+    public class SimpleIoC : IServiceCollection
     {
         Dictionary<Type, Type> registeredTypes = new Dictionary<Type, Type>();
         HashSet<Type> singletonTypes = new HashSet<Type>();
@@ -119,5 +119,11 @@ namespace BuilderScenario
 
             return this;
         }
+    }
+
+    public interface IServiceCollection
+    {
+        T Resolve<T>() where T : class;
+        object[] ResolveArguments(MethodInfo method);
     }
 }

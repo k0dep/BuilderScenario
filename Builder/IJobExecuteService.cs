@@ -25,9 +25,9 @@ namespace BuilderScenario
 
     public class JobExecuter : IJobExecuteService
     {
-        public readonly SimpleIoC Container;
+        public readonly IServiceCollection Container;
 
-        public JobExecuter(SimpleIoC container)
+        public JobExecuter(IServiceCollection container)
         {
             Container = container;
         }
