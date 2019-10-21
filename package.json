@@ -1,6 +1,6 @@
 {
     "name": "pro.kodep.builder-scenario",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "displayName": "BuilderScenario",
     "author": "Stanislav Petrov @k0dep <sv.petrov@kodep.pro>",
     "description": "🏗 unity build tool",
