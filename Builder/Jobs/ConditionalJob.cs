@@ -6,12 +6,14 @@ namespace BuilderScenario
         public IBuildJob Job { get; set; }
         public bool Condition { get; set; }
 
-        public void Run(IJobExecuteService executer)
+        public bool Run(IJobExecuteService executer)
         {
             if (Condition)
             {
-                executer.Execute(Job);
+                return executer.Execute(Job).IsSucces;
             }
+
+            return true;
         }
     }
 }

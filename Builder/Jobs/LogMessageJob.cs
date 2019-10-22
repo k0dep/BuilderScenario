@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace BuilderScenario
 {
     [TagAlias("debugLog")]
@@ -7,7 +5,7 @@ namespace BuilderScenario
     {
         public string Message { get; set; }
         
-        public void Run(ILogger logger)
+        public void Run(IBuildLogger logger)
         {
             logger.Log(Message);
         }

@@ -1,10 +1,11 @@
 namespace BuilderScenario
 {
-    [TagAlias("dummy")]
+    [TagAlias("dummy", true)]
     public class DummyJob : IBuildJob
     {
-        public void Run()
+        public void Run(IBuildLogger logger)
         {
+            logger.Log("dummy job");
         }
     }
 }

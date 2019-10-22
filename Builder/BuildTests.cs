@@ -12,33 +12,43 @@ namespace BuilderScenario
             var container = new ServiceCollection();
             var executer = new JobExecuter(container);
 
-            container.Register<IJobExecuteService, JobExecuter>(executer);
-            container.Register<ILogger, Logger>(new Logger(Debug.unityLogger));
+            container.Register<IServiceCollection>(container);
+            container.Register<IJobExecuteService>(executer);
+            
+            var logger = new XmlBuildLogger();
+            container.Register<IBuildLogger>(logger);
+
+            var configMap = new ConfigMap();
+            container.Register<IConfigMap>(configMap);
 
             var jobData = 
 @"
-Jobs:
-  - !dummy
-  - !debugLog
-    Message: 'Hello from job!'
-  - !SetVersion
-    Version: '1.5.0'
-  - !Conditional
-    Condition: true
-    Job: !Sequence
-      Jobs:
-        - !debugLog
-          Message: 'Hello from job!' 
+ConfigMap:
+  BuildPath: Path
+  WorkingDir: !Env
+    UnixEnv: PWD
+  WorkingDir1: !EnvPWD
+
+Job: !Sequence
+  Jobs:
+    - !debugLog
+      Message: 'Hello from job!'
+    - !SetVersion
+      Version: '1.5.0'
+    - !Conditional
+      Condition: true
+      Job: !Sequence
+        Jobs:
+          - !debugLog
+            Message: 'Hello from job!' 
 ";
 
-            var rootJob = new JobLoader().Deserialize<SequenceJob>(jobData);
+            var rootJob = new JobLoader().Deserialize<RootJob>(jobData);
             var result = executer.Execute(rootJob);
 
             Debug.Log($"IsSuccess: {result.IsSucces}");
-            foreach (var log in result.Logs)
-            {
-                Debug.Log($"Message: {log}");
-            }
+            
+            Debug.Log($"Logs:\n{logger}");
         }
     }
 }

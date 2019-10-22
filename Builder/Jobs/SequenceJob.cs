@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace BuilderScenario
 {
     [TagAlias("Sequence")]
@@ -7,13 +5,18 @@ namespace BuilderScenario
     {
         public IBuildJob[] Jobs { get; set; }
 
-        public void Run(IJobExecuteService executer, ILogger logger)
+        public bool Run(IJobExecuteService executer)
         {
             foreach (var job in Jobs)
             {
-                executer.Execute(job);
-                logger.Log($"Runned job {job}");
+                var result = executer.Execute(job);
+                if (!result.IsSucces)
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
     }
 }

@@ -41,9 +41,9 @@ namespace BuilderScenario
             return For<Tfrom>().Inject<TTo>();
         }
         
-        public ServiceCollection Register<TFrom, TTo>(TTo instance) where TTo : TFrom
+        public ServiceCollection Register<TFrom>(TFrom instance)
         {
-            For<TFrom>().Inject<TTo>();
+            For<TFrom>().Inject(instance.GetType());
             singletonTypes.Add(typeof(TFrom));
             instances.Add(typeof(TFrom), instance);
             return this;
@@ -106,18 +106,24 @@ namespace BuilderScenario
             return this;
         }
         
-        private ServiceCollection Inject<TTo>()
+        
+        private ServiceCollection Inject(Type type)
         {
             // If Already added, Just update the injection type
             if (registeredTypes.ContainsKey(tmp))
-                registeredTypes[tmp] = typeof(TTo);
+                registeredTypes[tmp] = type;
             else
             {
-                registeredTypes.Add(tmp, typeof(TTo));
+                registeredTypes.Add(tmp, type);
                 tmp = null;
             }
 
             return this;
+        }
+        
+        private ServiceCollection Inject<TTo>()
+        {
+            return Inject(typeof(TTo));
         }
     }
 }

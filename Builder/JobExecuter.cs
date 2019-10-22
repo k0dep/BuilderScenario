@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace BuilderScenario
 {
@@ -13,11 +14,22 @@ namespace BuilderScenario
         
         public JobExecuteResult Execute(IBuildJob job)
         {
+            var logger = Container.Resolve<IBuildLogger>();
+            logger.BeginScope($"execute job: {job}");
+
             var result = new JobExecuteResult
             {
-                Start = DateTime.UtcNow,
-                Title = $"Execute job {job}"
+                Start = DateTime.Now,
+                Finish = DateTime.Now,
+                IsSucces = false
             };
+            
+            if (job == null)
+            {
+                logger.Error("job is null. Check config");
+                logger.EndScope();
+                return result;
+            }
 
             try
             {
@@ -28,21 +40,30 @@ namespace BuilderScenario
                 }
                 
                 var parameters = Container.ResolveArguments(runMethod);
-                
-                result.Logs.Add($"{DateTime.UtcNow:hh:mm:ss:zz} Runner: Run job {job}");
                 var invokeResult = runMethod.Invoke(job, parameters);
 
-                result.IsSucces = true;
-                result.Status = "ok";
+                if (invokeResult is bool boolResult)
+                {
+                    result.IsSucces = boolResult;
+                    if (!boolResult)
+                    {
+                        logger.Log("job return fail result");
+                    }
+                }
+                else
+                {
+                    result.IsSucces = true;
+                }
             }
             catch (Exception e)
             {
                 result.IsSucces = false;
-                result.Status = "exception";
-                result.Logs.Add($"Exception: {e}");
+                logger.Exception(e);
             }
             
             result.Finish = DateTime.UtcNow;
+            
+            logger.EndScope();
 
             return result;
         }
