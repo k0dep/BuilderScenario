@@ -30,7 +30,7 @@ namespace BuilderScenario
         {
             foreach (var env in _data)
             {
-                input = input.Replace($"${{{env.Key}}}", Interpolate(env.Value.ToString()));
+                input = input.Replace($"${{{env.Key}}}", env.Value.ToString());
             }
 
             return input;
