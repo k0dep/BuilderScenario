@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace BuilderScenario
 {
@@ -19,7 +20,7 @@ namespace BuilderScenario
         
         public void BeginScope(string scopeMessage)
         {
-            _builder.AppendLine($"{_indentLevel}<scope title=\"{scopeMessage}\">");
+            _builder.AppendLine($"{_indentLevel}<scope title=\"{Escape(scopeMessage)}\">");
             _scopeStack.Push(scopeMessage);
         }
 
@@ -31,27 +32,32 @@ namespace BuilderScenario
 
         public void Log(string message)
         {
-            _builder.AppendLine($"{_indentLevel}<log dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{message}</log>");
+            _builder.AppendLine($"{_indentLevel}<log dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{Escape(message)}</log>");
         }
 
         public void Warning(string message)
         {
-            _builder.AppendLine($"{_indentLevel}<warning dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{message}</warning>");
+            _builder.AppendLine($"{_indentLevel}<warning dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{Escape(message)}</warning>");
         }
 
         public void Error(string message)
         {
-            _builder.AppendLine($"{_indentLevel}<error dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{message}</error>");
+            _builder.AppendLine($"{_indentLevel}<error dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{Escape(message)}</error>");
         }
 
         public void Exception(Exception exception)
         {
-            _builder.AppendLine($"{_indentLevel}<exception dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{exception}</exception>");
+            _builder.AppendLine($"{_indentLevel}<exception dt=\"{DateTime.Now:yyyy.MM.dd hh:mm:ss}\">{Escape(exception.ToString())}</exception>");
         }
 
         public override string ToString()
         {
             return _builder.ToString();
         }
+        
+        public string Escape(string text)
+        {
+            return new XElement("t", text).LastNode.ToString();
+        } 
     }
 }
