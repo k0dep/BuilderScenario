@@ -6,7 +6,7 @@ namespace BuilderScenario
 {
     public class BuildTests
     {
-        [MenuItem("Build/Test/Test 1")]
+        [MenuItem("Window/BuilderScenario/Tests/Test 1")]
         public static void Test1()
         {
             var container = new ServiceCollection();
@@ -16,7 +16,7 @@ namespace BuilderScenario
             container.Register<IJobExecuteService>(executer);
             
             var logger = new XmlBuildLogger();
-            container.Register<IBuildLogger>(logger);
+            container.Register<IBuildLogger>(new CompositeLogger(logger, new UnityBuildLogger()));
 
             var configMap = new ConfigMap();
             container.Register<IConfigMap>(configMap);
