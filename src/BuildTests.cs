@@ -17,9 +17,8 @@ namespace BuilderScenario
             
             var logger = new XmlBuildLogger();
             container.Register<IBuildLogger>(new CompositeLogger(logger, new UnityBuildLogger()));
-
-            var configMap = new ConfigMap();
-            container.Register<IConfigMap>(configMap);
+            
+            container.Register<IConfigMap, ConfigMap>();
 
             var jobData = 
 @"

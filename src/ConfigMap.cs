@@ -4,14 +4,25 @@ namespace BuilderScenario
 {
     public class ConfigMap : IConfigMap
     {
+        private readonly IBuildLogger m_Logger;
         private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
+
+        public ConfigMap(IBuildLogger logger)
+        {
+            m_Logger = logger;
+        }
         
         public string Get(string name, string defValue = null, bool useInterpolation = true)
         {
+            m_Logger.Log($"requected config map '{name}'");
             if (_data.TryGetValue(name, out var data))
             {
                 if (useInterpolation)
                 {
+                    if (data is IInterpolable interpolable)
+                    {
+                        return Interpolate(interpolable.Interpolate(this));
+                    }
                     return Interpolate(data.ToString());
                 }
 
