@@ -42,7 +42,7 @@ Job: !Sequence
             Message: 'Hello from job!' 
 ";
 
-            var rootJob = new JobLoader().Deserialize<RootJob>(jobData);
+            var rootJob = new ObjectLoader("", logger).Deserialize<RootJob>(jobData);
             var result = executer.Execute(rootJob);
 
             Debug.Log($"IsSuccess: {result.IsSucces}");

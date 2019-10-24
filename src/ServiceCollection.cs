@@ -49,6 +49,18 @@ namespace BuilderScenario
             return this;
         }
 
+        public void Inject(object target)
+        {
+            var injectMethod = target.GetType().GetMethod("Inject");
+            if (injectMethod == null)
+            {
+                return;
+            }
+
+            var arguments = ResolveArguments(injectMethod);
+            injectMethod.Invoke(target, arguments);
+        }
+
         public object[] ResolveArguments(MethodInfo method)
         {
             var result = new List<object>();

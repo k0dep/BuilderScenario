@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BuilderScenario
 {
@@ -7,29 +10,31 @@ namespace BuilderScenario
         private readonly IBuildLogger m_Logger;
         private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
-        public ConfigMap(IBuildLogger logger)
+        public ConfigMap(IBuildLogger logger = null)
         {
             m_Logger = logger;
         }
         
         public string Get(string name, string defValue = null, bool useInterpolation = true)
         {
-            m_Logger.Log($"requected config map '{name}'");
+            var result = defValue;
+            
             if (_data.TryGetValue(name, out var data))
             {
                 if (useInterpolation)
                 {
                     if (data is IInterpolable interpolable)
-                    {
-                        return Interpolate(interpolable.Interpolate(this));
-                    }
-                    return Interpolate(data.ToString());
+                        result = Interpolate(interpolable.Interpolate(this));
+                    else
+                        result = Interpolate(data.ToString());
                 }
-
-                return data.ToString();
+                else
+                    result = data.ToString();
             }
+            
+            m_Logger?.Log($"requested config map: '{name}' value: '{result}'");
 
-            return defValue;
+            return result;
         }
 
         public void Set(string name, object value)
@@ -39,12 +44,33 @@ namespace BuilderScenario
 
         public string Interpolate(string input)
         {
-            foreach (var env in _data)
+            var matchers = string.Join("|", _data.Keys)
+                    .Replace(".", "\\.")
+                    .Replace("-", "\\-")
+                    .Replace(":", "\\:");
+            
+            var result = input;
+            const int MAX_ITERATIONS = 100;
+            var i = 0;
+            for (; i <= MAX_ITERATIONS; i++)
             {
-                input = input.Replace($"${{{env.Key}}}", env.Value.ToString());
+                var matches = Regex.Match(result, $"\\$\\{{(?<match>{matchers})\\}}");
+                if (!matches.Success)
+                    break;
+
+                var variable = matches.Groups["match"].Value;
+                if (_data.TryGetValue(variable, out var value))
+                {
+                    result = result.Replace($"${{{variable}}}", value.ToString());
+                }
             }
 
-            return input;
+            if (i == MAX_ITERATIONS)
+            {
+                throw new StackOverflowException($"cant intrepolate string '{input}'. check recursive variables");
+            }
+
+            return result;
         }
 
         public string this[string key]
