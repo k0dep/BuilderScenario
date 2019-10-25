@@ -39,11 +39,21 @@ namespace BuilderScenario
 
         public void Set(string name, object value)
         {
+            if (value == null)
+            {
+                return;
+            }
+            
             _data[name] = value;
         }
 
         public string Interpolate(string input)
         {
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+            
             var matchers = string.Join("|", _data.Keys)
                     .Replace(".", "\\.")
                     .Replace("-", "\\-")
@@ -59,9 +69,9 @@ namespace BuilderScenario
                     break;
 
                 var variable = matches.Groups["match"].Value;
-                if (_data.TryGetValue(variable, out var value))
+                if (_data.ContainsKey(variable))
                 {
-                    result = result.Replace($"${{{variable}}}", value.ToString());
+                    result = result.Replace($"${{{variable}}}", Get(variable, null, true));
                 }
             }
 

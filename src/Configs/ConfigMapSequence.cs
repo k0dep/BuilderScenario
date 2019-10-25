@@ -24,7 +24,12 @@ namespace BuilderScenario
             {
                 foreach (var entry in sequenceEntry)
                 {
-                    merged[entry.Key] = entry.Value;
+                    var value = entry.Value;
+                    if (merged.TryGetValue(entry.Key, out var existing))
+                    {
+                        value = new OverridingMapper(value, existing);
+                    }
+                    merged[entry.Key] = value;
                 }
             }
 
