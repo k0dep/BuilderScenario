@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace BuilderScenario.Tests
 {
     public class ConfigMapMock : IConfigMap
@@ -21,5 +23,7 @@ namespace BuilderScenario.Tests
             get => null;
             set{}
         }
+
+        public IDictionary<string, object> Data => null;
     }
 }

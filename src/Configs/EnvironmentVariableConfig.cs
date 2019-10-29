@@ -8,7 +8,7 @@ namespace BuilderScenario.Configs
     {
         public string UnixEnv { get; set; } = null;
         public string WinEnv { get; set; } = null;
-        
+
         public override string ToString()
         {
             if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.LinuxEditor)
@@ -16,15 +16,6 @@ namespace BuilderScenario.Configs
                 return Environment.GetEnvironmentVariable(UnixEnv);
             }
             return Environment.GetEnvironmentVariable(WinEnv);
-        }
-    }
-    
-    [TagAlias("EnvPWD", true)]
-    public class PWDEnvironmentVariableConfig
-    {
-        public override string ToString()
-        {
-            return Environment.CurrentDirectory;
         }
     }
 }

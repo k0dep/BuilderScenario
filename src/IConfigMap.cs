@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace BuilderScenario
 {
     public interface IConfigMap
@@ -7,5 +9,7 @@ namespace BuilderScenario
         string Interpolate(string input);
 
         string this[string key] { get; set; }
+        
+        IDictionary<string, object> Data { get; }
     }
 }

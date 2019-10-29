@@ -88,5 +88,7 @@ namespace BuilderScenario
             get => Get(key, null, true);
             set => Set(key, value);
         }
+
+        public IDictionary<string, object> Data => _data;
     }
 }

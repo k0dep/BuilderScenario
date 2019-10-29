@@ -22,15 +22,17 @@ namespace BuilderScenario
             compileParams.GenerateExecutable = false;
 
             const string code = @"class RuntimeExpression {{ public static bool Evaluate() {{ return {0}; }} }}";
+            var expressionCode = string.Format(code, configMap.Interpolate(Expression));
+            logger.Log($"expression c# code: {expressionCode}");
 
-            var compilerResult = cSharp.CompileAssemblyFromSource(compileParams, string.Format(code, configMap.Interpolate(Expression)));
+            var compilerResult = cSharp.CompileAssemblyFromSource(compileParams, expressionCode);
             var asm = compilerResult.CompiledAssembly;
             
             if (compilerResult.Errors.Count > 0)
             {
                 foreach (CompilerError error in compilerResult.Errors)
                 {
-                    logger.Error($"expression compilation error: {error}");
+                    logger.Error($"expression compilation error: {error}, file: {error.FileName}, line: {error.Line}");
                 }
 
                 return false;

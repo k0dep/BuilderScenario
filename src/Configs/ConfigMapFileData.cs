@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace BuilderScenario
 {
@@ -7,6 +9,7 @@ namespace BuilderScenario
     public class ConfigMapFileData : IConfigMapData
     {
         public string FileName { get; set; }
+        public bool AllowFails { get; set; } = false;
 
         private IObjectLoader _loader;
         private IServiceCollection _servoceCollection;
@@ -19,9 +22,27 @@ namespace BuilderScenario
         
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            var data = _loader.Load<IConfigMapData>(FileName);
-            _servoceCollection.Inject(data);
-            return data.GetEnumerator();
+            try
+            {
+                var data = _loader.Load<IConfigMapData>(FileName);
+                _servoceCollection.Inject(data);
+                return data.GetEnumerator();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to load config file at path: {FileName}");
+
+                if (!AllowFails)
+                {
+                    throw;
+                }
+                else
+                {
+                    Debug.LogException(e);
+                }
+            }
+
+            return new Dictionary<string, object>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
