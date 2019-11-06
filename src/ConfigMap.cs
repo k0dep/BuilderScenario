@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,12 +8,14 @@ namespace BuilderScenario
 {
     public class ConfigMap : IConfigMap
     {
-        private readonly IBuildLogger m_Logger;
+        private readonly IBuildLogger Logger;
+        private readonly IServiceCollection ServiceCollection;
         private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
-        public ConfigMap(IBuildLogger logger = null)
+        public ConfigMap(IServiceCollection serviceCollection, IBuildLogger logger = null)
         {
-            m_Logger = logger;
+            ServiceCollection = serviceCollection;
+            Logger = logger;
         }
         
         public string Get(string name, string defValue = null, bool useInterpolation = true)
@@ -32,9 +35,24 @@ namespace BuilderScenario
                     result = data.ToString();
             }
             
-            m_Logger?.Log($"requested config map: '{name}' value: '{result}'");
+            Logger?.Log($"requested config map: '{name}' value: '{result}'");
 
             return result;
+        }
+
+        public IConfigMap GetSection(string name)
+        {
+            if (_data.TryGetValue(name, out var section))
+            {
+                if (section is IConfigMapData sectionData)
+                {
+                    var sectionConfig = new ConfigMapSection(this, ServiceCollection, Logger);
+                    sectionConfig.Fill(sectionData);
+                    return sectionConfig;
+                }
+            }
+
+            return null;
         }
 
         public void Set(string name, object value)
@@ -47,7 +65,7 @@ namespace BuilderScenario
             _data[name] = value;
         }
 
-        public string Interpolate(string input)
+        public virtual string Interpolate(string input)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -71,7 +89,7 @@ namespace BuilderScenario
                 var variable = matches.Groups["match"].Value;
                 if (_data.ContainsKey(variable))
                 {
-                    result = result.Replace($"${{{variable}}}", Get(variable, null, true));
+                    result = result.Replace($"${{{variable}}}", Get(variable, null, false));
                 }
             }
 
@@ -90,5 +108,49 @@ namespace BuilderScenario
         }
 
         public IDictionary<string, object> Data => _data;
+        
+        public IEnumerable<KeyValuePair<string, object>> Fill(IEnumerable<KeyValuePair<string, object>> data)
+        {
+            ServiceCollection.Inject(data);
+
+            var prevVars = new Dictionary<string, object>();
+
+            foreach (var configEntry in data)
+            {
+                Logger?.Log($"set config '{configEntry.Key}' with value '{configEntry.Value}'");
+
+                if (Data.TryGetValue(configEntry.Key, out var existsData))
+                {
+                    prevVars[configEntry.Key] = existsData;
+                }
+                
+                Set(configEntry.Key, configEntry.Value);
+            }
+
+            return prevVars.AsEnumerable();
+        }
+
+        public void Set(IEnumerable<KeyValuePair<string, object>> data)
+        {
+            foreach (var prevVar in data)
+            {
+                Set(prevVar.Key, prevVar.Value);
+            }
+        }
+    }
+
+    public class ConfigMapSection : ConfigMap
+    {
+        public readonly ConfigMap Parent;
+        public ConfigMapSection(ConfigMap parent, IServiceCollection serviceCollection, IBuildLogger logger = null)
+            : base(serviceCollection, logger)
+        {
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
+        }
+
+        public override string Interpolate(string input)
+        {
+            return Parent.Interpolate(base.Interpolate(input));
+        }
     }
 }

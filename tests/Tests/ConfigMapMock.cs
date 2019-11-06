@@ -9,6 +9,11 @@ namespace BuilderScenario.Tests
             return null;
         }
 
+        public IConfigMap GetSection(string name)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Set(string name, object value)
         {
         }
@@ -25,5 +30,14 @@ namespace BuilderScenario.Tests
         }
 
         public IDictionary<string, object> Data => null;
+        public IEnumerable<KeyValuePair<string, object>> Fill(IEnumerable<KeyValuePair<string, object>> data)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Set(IEnumerable<KeyValuePair<string, object>> data)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
